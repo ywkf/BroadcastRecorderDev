@@ -1,0 +1,29 @@
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Node.js
+node_modules/
+package-lock.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+venv/
+
+# Logs
+*.log
+logs/
+
+# Media
+media/
+*.mp3
+*.wav
+*.mp4
+
+# System
+.DS_Store
+Thumbs.db

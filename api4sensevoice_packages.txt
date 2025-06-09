@@ -1,0 +1,13 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: win-64
+# created-by: conda 24.11.0
+funasr=1.1.16=pypi_0
+modelscope=1.17.1=pypi_0
+pydantic=2.8.2=py310haa95532_0
+pydantic-core=2.20.1=py310hefb1915_0
+pydantic-settings=2.6.1=pypi_0
+pytorch-wpe=0.0.1=pypi_0
+torch=2.3.0=pypi_0
+torch-complex=0.4.4=pypi_0
+torchaudio=2.3.0=pypi_0
