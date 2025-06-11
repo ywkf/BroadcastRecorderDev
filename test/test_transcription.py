@@ -2,15 +2,17 @@
 
 import requests
 import os
-from app.logging_config import logger
+from app.logging_config import get_logger
 
 HTTP_API_ENDPOINT = "http://localhost:7000/transcribe"
+
 
 def test_transcribe():
     audio_file_path = "../media/recordings/14-10-53.wav"
     text_file_path = "../media/transcriptions/14-10-53.wav.txt"
     # audio_file_path = "../media/temp/ch3.wav"
     # text_file_path = "../media/transcriptions/ch3.wav.txt"
+    logger = get_logger(__name__)
 
 
     # 确保测试音频文件存在

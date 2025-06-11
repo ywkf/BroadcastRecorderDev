@@ -17,201 +17,36 @@ from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtGui import QIcon, QTextCursor
 from app.api import RadioRecorderAPI
 
+import os
+import sys
+from pathlib import Path
 
-# class RadioRecorderAPI:
-#     def __init__(self):
-#         self.recording_process = None
-#         self.transcription_process = None
-#         self.is_recording = False
-#         self.is_transcribing = False
-#         self.process = None
-#         self.is_running = False
-#         self.output_emitter = Emitter()  # 用于输出信号
-#         self.config = {
-#             "recordings_dir": "./media/recordings",
-#             "transcriptions_dir": "./media/transcriptions",
-#             "duration": 360,
-#             "transcription_port": 7000  # 转录服务端口
-#         }
-#         self.process = QProcess()
-#         self.process.readyReadStandardOutput.connect(self.handle_stdout)
-#         self.process.readyReadStandardError.connect(self.handle_stderr)
-#         # 获取主程序路径
-#         script_dir = os.path.dirname(os.path.abspath(__file__))
-#         self.main_program_path = os.path.join(script_dir, "record.py")
-#
-#     def start_transcription_service(self):
-#         """启动转录服务（改进版）"""
-#         if self.is_transcribing:
-#             return False
-#
-#         try:
-#             # 确保之前的进程已清理
-#             if self.transcription_process:
-#                 self.transcription_process.kill()
-#                 self.transcription_process = None
-#
-#             self.transcription_process = QProcess()
-#             self.transcription_process.readyReadStandardOutput.connect(
-#                 lambda: self._handle_process_output(self.transcription_process, "stdout")
-#             )
-#             self.transcription_process.readyReadStandardError.connect(
-#                 lambda: self._handle_process_output(self.transcription_process, "stderr")
-#             )
-#
-#             # 设置环境变量（如有需要）
-#             env = QProcessEnvironment.systemEnvironment()
-#             self.transcription_process.setProcessEnvironment(env)
-#
-#             # 启动命令
-#             working_dir = os.path.dirname(os.path.abspath(__file__))
-#             self.transcription_process.setWorkingDirectory(working_dir)
-#
-#             self.transcription_process.start(
-#                 sys.executable,
-#                 ["./api4sensevoice/server01.py", "--port", str(self.config["transcription_port"])]
-#             )
-#
-#             if not self.transcription_process.waitForStarted(5000):
-#                 raise Exception("转录服务启动超时")
-#
-#             self.is_transcribing = True
-#             self.output_emitter.text_written.emit("转录服务启动成功")
-#             return True
-#
-#         except Exception as e:
-#             error_msg = f"启动转录服务失败: {str(e)}"
-#             self.output_emitter.text_written.emit(error_msg)
-#             if self.transcription_process:
-#                 self.transcription_process.kill()
-#                 self.transcription_process = None
-#             return False
-#
-#     def _handle_process_output(self, process, stream_type):
-#         """处理进程输出（线程安全）"""
-#         try:
-#             if stream_type == "stdout":
-#                 data = bytes(process.readAllStandardOutput()).decode('utf-8', errors='replace').strip()
-#             else:
-#                 data = bytes(process.readAllStandardError()).decode('utf-8', errors='replace').strip()
-#
-#             if data:
-#                 # 分割多行日志
-#                 for line in data.splitlines():
-#                     self.output_emitter.text_written.emit(f"[转录服务] {line}")
-#         except Exception as e:
-#             self.output_emitter.text_written.emit(f"处理输出错误: {str(e)}")
-#
-#     def stop_transcription_service(self):
-#         """停止转录服务"""
-#         if not self.is_transcribing or not self.transcription_process:
-#             return False
-#
-#         try:
-#             # 先尝试正常终止
-#             self.transcription_process.terminate()
-#
-#             # 使用waitForFinished代替wait
-#             if not self.transcription_process.waitForFinished(5000):  # 等待5秒
-#                 # 如果正常终止失败，强制杀死进程
-#                 self.transcription_process.kill()
-#                 self.transcription_process.waitForFinished(1000)
-#
-#             self.is_transcribing = False
-#             return True
-#         except Exception as e:
-#             self.output_emitter.text_written.emit(f"停止转录服务失败: {str(e)}")
-#             try:
-#                 self.transcription_process.kill()
-#             except:
-#                 pass
-#             return False
-#         finally:
-#             self.transcription_process = None
-#
-#     def _redirect_output(self, process):
-#         """重定向子进程输出"""
-#         while True:
-#             output = process.stdout.readline()
-#             if output == '' and process.poll() is not None:
-#                 break
-#             if output:
-#                 self.output_emitter.text_written.emit(output.strip())
-#
-#         while True:
-#             err = process.stderr.readline()
-#             if err == '' and process.poll() is not None:
-#                 break
-#             if err:
-#                 self.output_emitter.text_written.emit(f"[ERROR] {err.strip()}")
-#
-#     def get_service_status(self):
-#         """获取服务状态"""
-#         return {
-#             "recording": "running" if self.is_running else "stopped",
-#             "transcription": "running" if self.is_transcribing else "stopped"
-#         }
-#
-#
-#     def handle_stdout(self):
-#         data = self.process.readAllStandardOutput()
-#         self.output_emitter.text_written.emit(str(data, 'utf-8').strip())
-#
-#     def handle_stderr(self):
-#         data = self.process.readAllStandardError()
-#         self.output_emitter.text_written.emit(str(data, 'utf-8').strip())
-#
-#     def start_main_program(self):
-#         if self.is_running:
-#             return False
-#
-#         try:
-#             # if self.process.state() == QProcess.Running:
-#             #     return False
-#
-#             self.process.start(sys.executable, [self.main_program_path])
-#             self.is_running = True
-#             return True
-#         except Exception as e:
-#             print(f"启动主程序失败: {str(e)}")
-#             return False
-#
-#     def stop_main_program(self):
-#         if not self.is_running:
-#             return False
-#
-#         try:
-#             # if self.process.state() == QProcess.Running:
-#             #     self.process.terminate()
-#             #     if not self.process.waitForFinished(10000):  # 10秒超时
-#             #         self.process.kill()
-#             self.process.kill()
-#             self.is_running = False
-#             return True
-#         except Exception as e:
-#             print(f"停止主程序失败: {str(e)}")
-#             return False
-#
-#     def read_output(self):
-#         """读取程序输出"""
-#         import pyqtgraph as pg  # 确保在子线程外导入
-#
-#         while self.is_running and self.process:
-#             try:
-#                 # 使用QProcess代替subprocess可能更好
-#                 output = self.process.stdout.readline()
-#                 if output:
-#                     # 使用信号发射而不是直接操作UI
-#                     self.output_emitter.text_written.emit(output.strip())
-#
-#                 error = self.process.stderr.readline()
-#                 if error:
-#                     self.output_emitter.text_written.emit(error.strip())
-#
-#                 time.sleep(0.01)  # 添加小延迟
-#             except Exception as e:
-#                 print(f"读取输出错误: {str(e)}")
-#                 break
+
+def verify_environment():
+    """严格验证运行环境"""
+    # 硬编码预期路径
+    EXPECTED_PYTHON = r"D:\Anaconda3\envs\gr_py310\python.exe"
+    EXPECTED_PREFIX = r"D:\Anaconda3\envs\gr_py310"
+
+    # 验证Python解释器
+    if Path(sys.executable) != Path(EXPECTED_PYTHON):
+        raise RuntimeError(f"Python路径不符，预期: {EXPECTED_PYTHON}，实际: {sys.executable}")
+
+    # 验证CONDA_PREFIX
+    if 'CONDA_PREFIX' not in os.environ:
+        os.environ['CONDA_PREFIX'] = EXPECTED_PREFIX  # 手动注入
+    elif Path(os.environ['CONDA_PREFIX']) != Path(EXPECTED_PREFIX):
+        raise RuntimeError(f"Conda环境不符，预期: {EXPECTED_PREFIX}，实际: {os.environ['CONDA_PREFIX']}")
+
+    # 验证项目路径
+    project_path = r"D:\PythonPro\BroadcastRecorder_dev"
+    if project_path not in sys.path:
+        sys.path.insert(0, project_path)
+
+    print("✓ 环境验证通过")
+    print(f"Python: {sys.executable}")
+    print(f"Conda: {os.environ['CONDA_PREFIX']}")
+    print(f"WorkDir: {os.getcwd()}")
 
 
 class Emitter(QObject):
@@ -311,20 +146,6 @@ class MainWindow(QMainWindow):
         # 处理事件队列防止卡顿
         QApplication.processEvents()
 
-    # def append_log(self, text):
-    #     """线程安全地追加日志"""
-    #
-    #     def _append():
-    #         cursor = self.log_display.textCursor()
-    #         cursor.movePosition(QTextCursor.End)
-    #         cursor.insertText(text + "\n")
-    #         self.log_display.setTextCursor(cursor)
-    #         self.log_display.ensureCursorVisible()
-    #
-    #     # # 使用QTimer在主线程中执行UI更新
-    #     # QTimer.singleShot(0, _append)
-    #     self.log_queue.put(text)
-    #     QApplication.processEvents()  # 确保GUI更新
 
     def init_ui(self):
         """初始化主界面"""
@@ -1164,6 +985,15 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == "__main__":
+    try:
+        verify_environment()
+        from app.api import RadioRecorderAPI  # 测试关键导入
+    except Exception as e:
+        print("!! 环境验证失败 !!")
+        print(str(e))
+        input("按Enter退出...")
+        sys.exit(1)
+
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()

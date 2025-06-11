@@ -8,6 +8,10 @@
 # Title: sdrtest
 # GNU Radio version: 3.10.10.0
 
+
+# 验证环境
+import os
+
 from PyQt5 import Qt
 from gnuradio import qtgui
 from PyQt5 import QtCore

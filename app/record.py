@@ -1,3 +1,4 @@
+
 import subprocess
 import time
 import os
@@ -5,7 +6,6 @@ import requests
 import signal
 import platform
 import threading
-# import logging
 from datetime import datetime, timedelta
 import shutil
 from app.logging_config import get_logger
@@ -36,15 +36,6 @@ class RadioRecorder:
         # self.setup_logging()
         self.logger = get_logger(__name__)
 
-    # def setup_logging(self):
-    #     logging.basicConfig(
-    #         level=logging.DEBUG,
-    #         format='%(asctime)s [%(levelname)s] %(message)s',
-    #         handlers=[
-    #             logging.StreamHandler()
-    #         ]
-    #     )
-    #     self.logger = logging.getLogger('radio_recorder')
 
     def start(self):
         """启动主程序"""
@@ -88,29 +79,6 @@ class RadioRecorder:
         finally:
             self.running = False
 
-    # def wait_until_trigger_time(self):
-    #     """等待直到整点或半点"""
-    #     while self.running:
-    #         now = datetime.now()
-    #         current_minute = now.minute
-    #         current_second = now.second
-    #
-    #         # 判断是否到达触发时间（00或30分钟）
-    #         if current_minute in (0, 30) and current_second < 5:  # 允许5秒误差
-    #             self.logger.info(f"到达触发时间: {now.strftime('%H:%M:%S')}")
-    #             return
-    #
-    #         # 计算到下一个触发点的等待时间
-    #         if current_minute < 30:
-    #             next_trigger = 30
-    #         else:
-    #             next_trigger = 60
-    #
-    #         wait_seconds = (next_trigger - current_minute - 1) * 60 + (60 - current_second)
-    #         wait_seconds = max(1, min(wait_seconds, 60))  # 分段等待，最长1分钟
-    #
-    #         self.logger.debug(f"当前时间: {now.strftime('%H:%M:%S')}, 下次触发在 {wait_seconds}秒后")
-    #         time.sleep(wait_seconds)
 
     def wait_until_trigger_time(self):
         """等待直到整点或半点（修复时间计算错误版）"""

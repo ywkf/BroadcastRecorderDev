@@ -1,6 +1,8 @@
+
 import os
 import sys
 import time
+import traceback
 
 from PyQt5.QtCore import QObject, pyqtSignal, QProcess, QProcessEnvironment
 from PyQt5.QtGui import QTextCursor
@@ -73,6 +75,13 @@ class RadioRecorderAPI:
             if self.transcription_process:
                 self.transcription_process.kill()
                 self.transcription_process = None
+            return False
+
+
+        except Exception as e:
+            print(f"!! 启动失败: {type(e).__name__}: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return False
 
     def _handle_process_output(self, process, stream_type):

@@ -1,0 +1,13 @@
+setup.py
+app/__init__.py
+app/api.py
+app/logging_config.py
+app/record.py
+broadcast_recorder.egg-info/PKG-INFO
+broadcast_recorder.egg-info/SOURCES.txt
+broadcast_recorder.egg-info/dependency_links.txt
+broadcast_recorder.egg-info/top_level.txt
+test/test1.py
+test/test2.py
+test/test3.py
+test/test_transcription.py

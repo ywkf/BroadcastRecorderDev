@@ -1,8 +1,1 @@
-{
-    "recordings_dir": "./media/recordings",
-    "transcriptions_dir": "./media/transcriptions",
-    "duration": 360,
-    "flowgraph_script": "./gunradio/sdr.py",
-    "api_endpoint": "http://localhost:7000/transcribe",
-    "frequencies": [540, 720, 900]
-}
+{"recordings_dir": "D:/PythonPro/BroadcastRecorder_dev/gui", "transcriptions_dir": "./media/transcriptions", "duration": 360}
